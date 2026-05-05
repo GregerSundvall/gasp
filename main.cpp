@@ -14,13 +14,10 @@ int main() {
 
     while (!WindowShouldClose()) {
 
-        gasp.UpdatePositions();
-
+        gasp.Tick();
         BeginDrawing();
         ClearBackground(backgroundColor);
-
         gasp.DrawObjects();
-
         EndDrawing();
     }
 
