@@ -23,7 +23,9 @@ endif()
 
 add_executable(gasp main.cpp
         gasp.cpp
-        gasp.h)
+        gasp.h
+        Game.cpp
+        Game.h)
 
 target_include_directories(gasp PRIVATE ${raylib_INCLUDE_DIRS})
 

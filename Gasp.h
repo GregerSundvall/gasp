@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <functional>
 #include <queue>
 #include <random>
 #include <vector>
@@ -13,18 +14,27 @@ inline float GetRandomFloat(const float min, const float max) {
     return distribution(gen);
 };
 
-class Animator {
-    int targetID;
-    float maxValue;
-    float minValue;
+struct Vec2 {
+    float x = 0.0f;
+    float y = 0.0f;
 
-    float currentValue;
+    Vec2() = default;
+    Vec2(float x, float y) : x(x), y(y) {}
 
-    void Tick() {
-        currentValue = 0.5f + 0.5f * std::sin(GetTime());
+    Vec2 operator+(const Vec2& other) const { return {x + other.x, y + other.y}; }
+    Vec2 operator-(const Vec2& other) const { return {x - other.x, y - other.y}; }
+    Vec2 operator*(float scalar) const { return {x * scalar, y * scalar}; }
+    Vec2 operator*(const Vec2& other) const { return {x * other.x, y * other.y}; }
+    Vec2& operator+=(const Vec2& other) { x += other.x; y += other.y; return *this; }
+};
+
+class UIDGuy {
+public:
+    static int HitMe() {
+        static int currentId = 0;
+        return currentId++;
     }
-
-    float GetCurrentValue(){ return currentValue; }
+    UIDGuy() = delete;
 };
 
 struct GameObjectData {
@@ -39,11 +49,19 @@ struct GameObject {
     Vector2 velocity;
     Color color;
     float size;
+    double timeCreated;
     int ID;
+};
+
+enum EnemyMovementType {
+    Linear,
+    Choppy,
+    PingPong
 };
 
 struct EnemyData {
     GameObjectData gameObjectData;
+    EnemyMovementType moveType {Linear};
     float delay;
 };
 
@@ -52,18 +70,20 @@ struct LevelEnemyData {
     float timeSinceLastSpawn = 0;
 };
 
+// using SpeedAlgorithm = std::function<float(float)>;
+// using MovementAlgo = std::function<Vector2(float, Vector2)>;
+
 class Gasp {
 private:
     std::vector<GameObject> gameObjects;
-    std::vector<int> iDToIndexLookup;
-    std::queue<int> freeIDs;
-
-    std::vector<Animator> animators;
 
     LevelEnemyData currentLevel;
-public:
-    Gasp();
 
+public:
+    std::function<float(float)> speedModifierChoppy;
+    std::function<float(float)> speedModifierSine;
+    std::function<Vector2(float, Vector2)> movementAlgo1;
+    Gasp();
 
     static Vector2 GetRandomEnemyStartPosition(float enemySize);
     int CreateGameObject(const GameObjectData& data);
@@ -72,9 +92,9 @@ public:
     void SpawnEnemy(EnemyData enemyData);
 
     void Tick();
-    void UpdatePositions();
+    // void UpdatePositions();
     void DrawObjects() const;
-    void SetPosition(int ID, const Vector2& newPosition);
-    void SetVelocity(int ID, const Vector2& newVelocity);
+    // void SetPosition(int ID, const Vector2& newPosition);
+    // void SetVelocity(int ID, const Vector2& newVelocity);
     [[nodiscard]] GameObjectData GetGameObjectData(int ID) const;
 };
