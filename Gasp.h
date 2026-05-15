@@ -3,39 +3,10 @@
 #include <queue>
 #include <random>
 #include <vector>
-
+#include "Game.h"
 #include "raylib.h"
+#include "UISystem.h"
 
-inline std::random_device rd;
-inline std::mt19937 gen(rd());
-
-inline float GetRandomFloat(const float min, const float max) {
-    std::uniform_real_distribution<float> distribution(min, max);
-    return distribution(gen);
-};
-
-struct Vec2 {
-    float x = 0.0f;
-    float y = 0.0f;
-
-    Vec2() = default;
-    Vec2(float x, float y) : x(x), y(y) {}
-
-    Vec2 operator+(const Vec2& other) const { return {x + other.x, y + other.y}; }
-    Vec2 operator-(const Vec2& other) const { return {x - other.x, y - other.y}; }
-    Vec2 operator*(float scalar) const { return {x * scalar, y * scalar}; }
-    Vec2 operator*(const Vec2& other) const { return {x * other.x, y * other.y}; }
-    Vec2& operator+=(const Vec2& other) { x += other.x; y += other.y; return *this; }
-};
-
-class UIDGuy {
-public:
-    static int HitMe() {
-        static int currentId = 0;
-        return currentId++;
-    }
-    UIDGuy() = delete;
-};
 
 struct GameObjectData {
     Vector2 position;
@@ -62,7 +33,7 @@ enum EnemyMovementType {
 struct EnemyData {
     GameObjectData gameObjectData;
     EnemyMovementType moveType {Linear};
-    float delay;
+    float spawnDelay {0};
 };
 
 struct LevelEnemyData {
@@ -76,8 +47,10 @@ struct LevelEnemyData {
 class Gasp {
 private:
     std::vector<GameObject> gameObjects;
-
     LevelEnemyData currentLevel;
+
+    Game game;
+    UI::UISystem uiSystem {};
 
 public:
     std::function<float(float)> speedModifierChoppy;
@@ -92,9 +65,6 @@ public:
     void SpawnEnemy(EnemyData enemyData);
 
     void Tick();
-    // void UpdatePositions();
     void DrawObjects() const;
-    // void SetPosition(int ID, const Vector2& newPosition);
-    // void SetVelocity(int ID, const Vector2& newVelocity);
     [[nodiscard]] GameObjectData GetGameObjectData(int ID) const;
 };

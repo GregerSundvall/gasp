@@ -1,6 +1,8 @@
 ﻿
 #include "Gasp.h"
 
+#include "Utils.h"
+
 // std::vector<GameObject> gameObjects;
 
 Gasp::Gasp() {
@@ -34,16 +36,17 @@ Gasp::Gasp() {
         float y = static_cast<int>(time) % 2 == 0 ? 1.5f : 0.5f;
         return Vector2{x, y};
     };
+
 }
 
 void Gasp::Tick() {
     //Spawn enemies
     if (!currentLevel.enemyData.empty()) {
         const EnemyData& enemy = currentLevel.enemyData.front();
-        if (currentLevel.timeSinceLastSpawn >= enemy.delay) {
+        if (currentLevel.timeSinceLastSpawn >= enemy.spawnDelay) {
             SpawnEnemy(enemy);
             currentLevel.enemyData.pop();
-            currentLevel.timeSinceLastSpawn -= enemy.delay;
+            currentLevel.timeSinceLastSpawn -= enemy.spawnDelay;
         } else {
             currentLevel.timeSinceLastSpawn += GetFrameTime();
         }
@@ -86,7 +89,7 @@ Vector2 Gasp::GetRandomEnemyStartPosition(const float enemySize) {
 }
 
 int Gasp::CreateGameObject(const GameObjectData& data) {
-    const int ID = UIDGuy::HitMe();
+    const int ID = Utils::UIDGenerator::GetNewUID();
     gameObjects.emplace_back(GameObject{data.position.x, data.position.y, data.velocity.x, data.velocity.y,
                             data.color, data.size, GetTime(), ID});
     return ID;

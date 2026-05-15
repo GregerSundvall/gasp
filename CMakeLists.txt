@@ -22,10 +22,14 @@ if (NOT ${LIB1}_FOUND)
 endif()
 
 add_executable(gasp main.cpp
-        gasp.cpp
-        gasp.h
+        Gasp.cpp
+        Gasp.h
         Game.cpp
-        Game.h)
+        Game.h
+        UISystem.cpp
+        UISystem.h
+        Utils.cpp
+        Utils.h)
 
 target_include_directories(gasp PRIVATE ${raylib_INCLUDE_DIRS})
 
