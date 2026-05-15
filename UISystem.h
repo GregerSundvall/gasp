@@ -6,48 +6,45 @@
 
 namespace UI {
 
-    enum UIBoxAlignment {
-        Centered,
-        Left,
-        Right,
-        Up,
-        Down,
+    enum UISplitDirection {
+        Horizontal,
+        Vertical
     };
 
-    struct UIBox {
+    struct UIContainer {
         Vector2 position;
         Vector2 size;
         Color color = {255, 255, 255, 255};
         float borderThickness = 3;
         float padding = 10;
-        UIBoxAlignment alignment = Centered;
         int ID = Utils::UIDGenerator::GetNewUID();
         int parentID = -1;
         std::vector<int> childrenIDs;
-        std::vector<int> siblingIDs;
     };
 
 
     class UISystem {
-        std::vector<UIBox> uiBoxes;
+        std::vector<UIContainer> uiContainers;
         Color uiColor = {50, 150, 110, 255};
 
     public:
         UISystem();
 
-        int AddChildBoxTo(int parentID);
+        int AddChildTo(int parentID);
 
-        UIBox &GetRootBox();
+        void AddChildrenTo(int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection);
 
-        Vector2 GetAvailableSpaceIn(int boxID);
+        UIContainer &GetRootContainer();
 
-        void DrawNeonFrame(int boxID);
+        Vector2 GetAvailableSpaceIn(int containerID);
 
-        void DrawCornerCutFrame(int boxID);
+        void DrawNeonFrame(int containerID);
+
+        void DrawCornerCutFrame(int containerID);
 
         void DrawAll();
 
-        UIBox& GetBoxFromID(int boxId);
+        UIContainer& GetContainerFromID(int containerID);
     };
 }
 

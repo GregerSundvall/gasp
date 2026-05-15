@@ -5,44 +5,70 @@
 
 namespace UI {
     UISystem::UISystem() {
-        // Create a main UIBox to exist inside
+        // Create root UI container
         int screenWidth = GetScreenWidth();
         int screenHeight = GetScreenHeight();
-        uiBoxes.reserve(1000);
-        uiBoxes.emplace_back();
-        float margin = 20.0f;
-        uiBoxes.back().position = {margin, margin};
-        uiBoxes.back().size = {screenWidth - margin * 2, screenHeight - margin * 2};
+        uiContainers.reserve(1000);
+        uiContainers.emplace_back();
+        float margin = 15.0f;
+        uiContainers.back().position = {margin, margin};
+        uiContainers.back().size = {screenWidth - margin * 2, screenHeight - margin * 2};
     }
 
-    int UISystem::AddChildBoxTo(const int parentID) {
-        uiBoxes.emplace_back();
-        int newBoxID = uiBoxes.back().ID;
-        uiBoxes.back().parentID = parentID;
-        UIBox& parent = GetBoxFromID(parentID);
-        parent.childrenIDs.push_back(newBoxID);
+    int UISystem::AddChildTo(const int parentID) {
+        uiContainers.emplace_back();
+        UIContainer& child = uiContainers.back();
+        child.parentID = parentID;
+        UIContainer& parent = GetContainerFromID(parentID);
+        parent.childrenIDs.push_back(child.ID);
 
-        UIBox& child = GetBoxFromID(newBoxID);
         child.position.x = parent.position.x + parent.padding;
         child.position.y = parent.position.y + parent.padding;
         Vector2 size = GetAvailableSpaceIn(parentID);
         child.size.x = size.x;
         child.size.y = size.y;
-        return newBoxID;
+        return child.ID;
     }
 
-    UIBox& UISystem::GetRootBox() {
-        return uiBoxes.front();
+    void UISystem::AddChildrenTo(const int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection) {
+        childrenIDs.clear();
+        childrenIDs.reserve(numChildren);
+        UIContainer& parent = GetContainerFromID(parentID);
+        // parent.childrenIDs.clear();
+
+        for (int i = 0; i < numChildren; ++i) {
+            childrenIDs.push_back(AddChildTo(parentID));
+            parent.childrenIDs.push_back(childrenIDs.back());
+        }
+
+        for (const int& childID : childrenIDs) {
+            GetContainerFromID(childID).parentID = parentID;
+        }
+
+        Vector2 totalSize = GetAvailableSpaceIn(parentID);
+        if (splitDirection == Horizontal) {
+            parent.size.x = totalSize.x;
+            float heightPerChild = (totalSize.y - (parent.padding * (numChildren + 1)) / numChildren);
+            parent.size.y = heightPerChild;
+        } else {
+            float widthPerChild = (totalSize.x - (parent.padding * (numChildren + 1)) / numChildren);
+            parent.size.x = widthPerChild;
+            parent.size.y = totalSize.y / numChildren;
+        }
     }
 
-    Vector2 UISystem::GetAvailableSpaceIn(const int boxID) {
-        const UIBox& box = GetBoxFromID(boxID);
+    UIContainer& UISystem::GetRootContainer() {
+        return uiContainers.front();
+    }
+
+    Vector2 UISystem::GetAvailableSpaceIn(const int containerID) {
+        const UIContainer& box = GetContainerFromID(containerID);
         Vector2 size = {box.size.x - box.padding * 2, box.size.y - box.padding * 2};
         return size;
     }
 
-    void UISystem::DrawNeonFrame(int boxID) {
-        UIBox& box = GetBoxFromID(boxID);
+    void UISystem::DrawNeonFrame(int containerID) {
+        UIContainer& box = GetContainerFromID(containerID);
         int posX = static_cast<int>(box.position.x);
         int posY = static_cast<int>(box.position.y);
         int width = static_cast<int>(box.size.x);
@@ -57,8 +83,8 @@ namespace UI {
         DrawRectangleLines(posX+4, posY+4, width-8, height-8, dimmedColor2);
     }
 
-    void UISystem::DrawCornerCutFrame(int boxID) {
-        UIBox& box = GetBoxFromID(boxID);
+    void UISystem::DrawCornerCutFrame(int containerID) {
+        UIContainer& box = GetContainerFromID(containerID);
         int cornerSize {40};
         Vector2 cornerCutWidth {40.0f, 0.0f};
         Vector2 cornerCutHeight {0.0f, 40.0f};
@@ -77,7 +103,7 @@ namespace UI {
     }
 
     void UISystem::DrawAll() {
-        for (const UIBox& box : uiBoxes) {
+        for (const UIContainer& box : uiContainers) {
             // float absPosX = box.position.x;
             // float absPosY = box.position.y;
             // int parentID = box.parentID;
@@ -93,13 +119,13 @@ namespace UI {
         }
     }
 
-    UIBox& UISystem::GetBoxFromID(int boxId) {
-        for (UIBox& box : uiBoxes) {
-            if (box.ID == boxId) {
-                return box;
+    UIContainer& UISystem::GetContainerFromID(int containerID) {
+        for (UIContainer& container : uiContainers) {
+            if (container.ID == containerID) {
+                return container;
             }
         }
-        return uiBoxes.front();
+        return uiContainers.front();
     }
 
 }

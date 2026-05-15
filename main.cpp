@@ -4,8 +4,8 @@
 #include "Gasp.h"
 
 int main() {
-    const int windowWidth = 2000;
-    const int windowHeight = 1000;
+    const int windowWidth = 1920;
+    const int windowHeight = 1080;
     const Color backgroundColor = {0, 0, 0, 0};
     InitWindow(windowWidth, windowHeight, "gasp");
     SetTargetFPS(60);
