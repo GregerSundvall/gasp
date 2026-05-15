@@ -25,7 +25,7 @@ namespace UI {
         UIBox& child = GetBoxFromID(newBoxID);
         child.position.x = parent.position.x + parent.padding;
         child.position.y = parent.position.y + parent.padding;
-        Utils::Vec2 size = GetAvailableSpaceIn(parentID);
+        Vector2 size = GetAvailableSpaceIn(parentID);
         child.size.x = size.x;
         child.size.y = size.y;
         return newBoxID;
@@ -35,9 +35,9 @@ namespace UI {
         return uiBoxes.front();
     }
 
-    Utils::Vec2 UISystem::GetAvailableSpaceIn(const int boxID) {
+    Vector2 UISystem::GetAvailableSpaceIn(const int boxID) {
         const UIBox& box = GetBoxFromID(boxID);
-        Utils::Vec2 size = {box.size.x - box.padding * 2, box.size.y - box.padding * 2};
+        Vector2 size = {box.size.x - box.padding * 2, box.size.y - box.padding * 2};
         return size;
     }
 

@@ -15,8 +15,8 @@ namespace UI {
     };
 
     struct UIBox {
-        Utils::Vec2 position;
-        Utils::Vec2 size;
+        Vector2 position;
+        Vector2 size;
         Color color = {255, 255, 255, 255};
         float borderThickness = 3;
         float padding = 10;
@@ -39,7 +39,7 @@ namespace UI {
 
         UIBox &GetRootBox();
 
-        Utils::Vec2 GetAvailableSpaceIn(int boxID);
+        Vector2 GetAvailableSpaceIn(int boxID);
 
         void DrawNeonFrame(int boxID);
 
