@@ -7,7 +7,7 @@
 namespace UI {
 
 
-    struct UIComponent {
+    struct UIArea {
         Utils::Vec2 position;
         Utils::Vec2 size;
         Color color = {255, 255, 255, 255};
@@ -21,13 +21,15 @@ namespace UI {
 
 
     class UISystem {
-        // static std::vector<UIComponent> uiComponents;
+        std::vector<UIArea> uiComponents;
 
     public:
         UISystem();
 
-        static void AddChildComponentTo(const int parentID);
-        static void Draw();
+        void AddChildComponentTo(int parentID);
+        void Draw();
+
+        UIArea& GetComponentFromID(int id);
     };
 }
 

@@ -65,6 +65,6 @@ public:
     void SpawnEnemy(EnemyData enemyData);
 
     void Tick();
-    void DrawObjects() const;
+    void DrawObjects();
     [[nodiscard]] GameObjectData GetGameObjectData(int ID) const;
 };

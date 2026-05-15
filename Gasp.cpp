@@ -114,7 +114,8 @@ void Gasp::SpawnEnemy(EnemyData enemyData) {
     CreateGameObject(enemyData.gameObjectData);
 }
 
-void Gasp::DrawObjects() const {
+void Gasp::DrawObjects() {
+    uiSystem.Draw();
     for (const GameObject& object : gameObjects) {
         DrawCircleLinesV(object.position, object.size, object.color);
     }
