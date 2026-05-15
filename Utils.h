@@ -1,6 +1,28 @@
 ﻿#pragma once
 #include <random>
 
+#include "raylib.h"
+
+
+// Operator overloads for raylib's Vector2
+inline Vector2 operator+(const Vector2& lhs, const Vector2& rhs) {
+    return Vector2{ lhs.x + rhs.x, lhs.y + rhs.y };
+}
+inline Vector2 operator-(const Vector2& lhs, const Vector2& rhs) {
+    return Vector2{ lhs.x - rhs.x, lhs.y - rhs.y };
+}
+inline Vector2& operator+=(Vector2& lhs, const Vector2& rhs) {
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
+}
+inline Vector2& operator-=(Vector2& lhs, const Vector2& rhs) {
+    lhs.x -= rhs.x;
+    lhs.y -= rhs.y;
+    return lhs;
+}
+
+
 namespace Utils {
 
     inline std::random_device rd;
@@ -34,6 +56,7 @@ namespace Utils {
         }
         UIDGenerator() = delete;
     };
+
 
     class Utils {
     };

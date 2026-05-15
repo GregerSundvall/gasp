@@ -6,13 +6,21 @@
 
 namespace UI {
 
+    enum UIBoxAlignment {
+        Centered,
+        Left,
+        Right,
+        Up,
+        Down,
+    };
 
-    struct UIArea {
+    struct UIBox {
         Utils::Vec2 position;
         Utils::Vec2 size;
         Color color = {255, 255, 255, 255};
         float borderThickness = 3;
-        float padding = 5;
+        float padding = 10;
+        UIBoxAlignment alignment = Centered;
         int ID = Utils::UIDGenerator::GetNewUID();
         int parentID = -1;
         std::vector<int> childrenIDs;
@@ -21,15 +29,25 @@ namespace UI {
 
 
     class UISystem {
-        std::vector<UIArea> uiComponents;
+        std::vector<UIBox> uiBoxes;
+        Color uiColor = {50, 150, 110, 255};
 
     public:
         UISystem();
 
-        void AddChildComponentTo(int parentID);
-        void Draw();
+        int AddChildBoxTo(int parentID);
 
-        UIArea& GetComponentFromID(int id);
+        UIBox &GetRootBox();
+
+        Utils::Vec2 GetAvailableSpaceIn(int boxID);
+
+        void DrawNeonFrame(int boxID);
+
+        void DrawCornerCutFrame(int boxID);
+
+        void DrawAll();
+
+        UIBox& GetBoxFromID(int boxId);
     };
 }
 

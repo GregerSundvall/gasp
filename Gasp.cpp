@@ -6,7 +6,10 @@
 // std::vector<GameObject> gameObjects;
 
 Gasp::Gasp() {
+    // int leftBoxID = uiSystem.AddChildBoxTo(uiSystem.GetRootBox().ID);
+
     gameObjects.reserve(1000);
+
 
     EnemyData enemy1Prefab = {{0, 0, 0.1f, 0.8f,
                             {80, 235, 121, 255}, 30}, Linear, 3.0f};
@@ -115,7 +118,7 @@ void Gasp::SpawnEnemy(EnemyData enemyData) {
 }
 
 void Gasp::DrawObjects() {
-    uiSystem.Draw();
+    uiSystem.DrawAll();
     for (const GameObject& object : gameObjects) {
         DrawCircleLinesV(object.position, object.size, object.color);
     }
