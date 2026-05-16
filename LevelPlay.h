@@ -21,7 +21,7 @@ namespace LevelPlay {
         Vector2 velocity;
         Color color;
         float size;
-        double timeCreated;
+        float animDesyncer = Utils::GetRandomFloat((0.0f), (1.0f));
         int ID = Utils::UIDGenerator::GetNewUID();
     };
 

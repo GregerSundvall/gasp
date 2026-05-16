@@ -69,9 +69,9 @@ namespace LevelPlay {
         for (int i = 0; i < gameObjects.size(); ++i) {
             GameObject& object = gameObjects[i];
             // object.position.x += object.velocity.x;
-            object.position.x += object.velocity.x * speedModifierSine(time - object.timeCreated);
+            object.position.x += object.velocity.x * speedModifierSine(time + object.animDesyncer);
             // object.position.y += object.velocity.y;
-            object.position.y += object.velocity.y * speedModifierChoppy(time - object.timeCreated);
+            object.position.y += object.velocity.y * speedModifierChoppy(time + object.animDesyncer);
 
             if (object.position.y > screenHeight + object.size) {
                 indicesToDestroy.emplace_back(i);
