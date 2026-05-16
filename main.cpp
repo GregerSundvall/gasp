@@ -14,7 +14,7 @@ int main() {
 
     while (!WindowShouldClose()) {
 
-        gasp.Tick();
+        gasp.FrameUpdate();
         BeginDrawing();
         ClearBackground(backgroundColor);
         gasp.DrawObjects();

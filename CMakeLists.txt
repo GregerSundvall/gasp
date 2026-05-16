@@ -24,12 +24,12 @@ endif()
 add_executable(gasp main.cpp
         Gasp.cpp
         Gasp.h
-        Game.cpp
-        Game.h
         UISystem.cpp
         UISystem.h
         Utils.cpp
-        Utils.h)
+        Utils.h
+        LevelPlay.cpp
+        LevelPlay.h)
 
 target_include_directories(gasp PRIVATE ${raylib_INCLUDE_DIRS})
 

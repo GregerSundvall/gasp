@@ -20,6 +20,7 @@ namespace UI {
         int ID = Utils::UIDGenerator::GetNewUID();
         int parentID = -1;
         std::vector<int> childrenIDs;
+        bool drawBorder = true;
     };
 
 
@@ -38,9 +39,9 @@ namespace UI {
 
         Vector2 GetAvailableSpaceIn(int containerID);
 
-        void DrawNeonFrame(int containerID);
+        void DrawNeonBorder(int containerID);
 
-        void DrawCornerCutFrame(int containerID);
+        void DrawCornerCutBorder(int containerID);
 
         void DrawAll();
 
