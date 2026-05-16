@@ -15,7 +15,7 @@ namespace UI {
         uiContainers.back().size = {screenWidth - margin * 2, screenHeight - margin * 2};
     }
 
-    int UISystem::AddChildTo(const int parentID) {
+    int UISystem::AddChildContainerTo(const int parentID) {
         uiContainers.emplace_back();
         UIContainer& child = uiContainers.back();
         child.parentID = parentID;
@@ -30,14 +30,14 @@ namespace UI {
         return child.ID;
     }
 
-    void UISystem::AddChildrenTo(const int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection) {
+    void UISystem::AddChildrenContainersTo(const int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection) {
         childrenIDs.clear();
         childrenIDs.reserve(numChildren);
         UIContainer& parent = GetContainerFromID(parentID);
-        // parent.childrenIDs.clear();
+        parent.childrenIDs.clear();
 
         for (int i = 0; i < numChildren; ++i) {
-            childrenIDs.push_back(AddChildTo(parentID));
+            childrenIDs.push_back(AddChildContainerTo(parentID));
             parent.childrenIDs.push_back(childrenIDs.back());
         }
 
@@ -45,15 +45,32 @@ namespace UI {
             GetContainerFromID(childID).parentID = parentID;
         }
 
-        Vector2 totalSize = GetAvailableSpaceIn(parentID);
-        if (splitDirection == Horizontal) {
-            parent.size.x = totalSize.x;
-            float heightPerChild = (totalSize.y - (parent.padding * (numChildren + 1)) / numChildren);
-            parent.size.y = heightPerChild;
+        Vector2 availableSize = GetAvailableSpaceIn(parentID);
+        Vector2 startPosition = parent.position + Vector2(parent.padding, parent.padding);
+        float padding = parent.padding; // Make this a function argument instead?
+
+        if (splitDirection == Vertical) {
+            float paddingSum = padding * (numChildren - 1);
+            float childWidth = (availableSize.x - paddingSum) / numChildren;
+            float spacing = childWidth + padding;
+            for (int i = 0; i < childrenIDs.size(); ++i) {
+                UIContainer& child = GetContainerFromID(childrenIDs[i]);
+                child.position.x = startPosition.x + spacing * i;
+                child.position.y = startPosition.y;
+                child.size.x = childWidth;
+                child.size.y = availableSize.y;
+            }
         } else {
-            float widthPerChild = (totalSize.x - (parent.padding * (numChildren + 1)) / numChildren);
-            parent.size.x = widthPerChild;
-            parent.size.y = totalSize.y / numChildren;
+            float paddingSum = padding * (numChildren - 1);
+            float childHeight = (availableSize.y - paddingSum) / numChildren;
+            float spacing = childHeight + padding;
+            for (int i = 0; i < childrenIDs.size(); ++i) {
+                UIContainer& child = GetContainerFromID(childrenIDs[i]);
+                child.position.x = startPosition.x;
+                child.position.y = startPosition.y + spacing * i;
+                child.size.x = availableSize.x;
+                child.size.y = childHeight;
+            }
         }
     }
 

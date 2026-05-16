@@ -6,9 +6,9 @@
 // std::vector<GameObject> gameObjects;
 
 Gasp::Gasp() {
-    // int leftBoxID = uiSystem.AddChildBoxTo(uiSystem.GetRootBox().ID);
+    // int leftBoxID = uiSystem.AddChildTo(uiSystem.GetRootContainer().ID);
     std::vector<int> containerChildrenIDs;
-    uiSystem.AddChildrenTo(uiSystem.GetRootContainer().ID, 3, containerChildrenIDs, UI::UISplitDirection::Vertical);
+    uiSystem.AddChildrenContainersTo(uiSystem.GetRootContainer().ID, 2, containerChildrenIDs, UI::UISplitDirection::Vertical);
 
     gameObjects.reserve(1000);
 

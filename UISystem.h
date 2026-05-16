@@ -30,9 +30,9 @@ namespace UI {
     public:
         UISystem();
 
-        int AddChildTo(int parentID);
+        int AddChildContainerTo(int parentID);
 
-        void AddChildrenTo(int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection);
+        void AddChildrenContainersTo(int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection);
 
         UIContainer &GetRootContainer();
 
