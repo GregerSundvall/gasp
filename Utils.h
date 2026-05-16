@@ -43,6 +43,7 @@ namespace Utils {
         UIDGenerator() = delete;
     };
 
+    inline float ClampedDeltaTime() { return std::min(0.1f, GetFrameTime()); }
 
     class Utils {
     };
