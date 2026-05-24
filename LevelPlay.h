@@ -68,9 +68,7 @@ namespace LevelPlay {
 
         static void SetPositionAndSize(Vector2 position, Vector2 size);
         static void AddWave(const EnemyData &enemyData, float delayBeforeFirst, float delayBetween, int enemyCount);
-
         static void HandleEnemySpawns();
-
         static Vector2 GetRandomEnemyStartPosition(float enemySize);
         static int CreateGameObject(const GameObjectData& data);
         static void DestroyGameObject(int ID);

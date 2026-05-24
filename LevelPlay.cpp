@@ -27,6 +27,8 @@ namespace LevelPlay {
             float y = static_cast<int>(time) % 2 == 0 ? 1.5f : 0.5f;
             return Vector2{x, y};
         };
+
+
     }
 
     void LevelPlay::SetPositionAndSize(Vector2 position, Vector2 size) {

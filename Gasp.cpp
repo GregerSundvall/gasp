@@ -12,7 +12,8 @@ Gasp::Gasp() {
 
     levelPlay = std::make_unique<LevelPlay::LevelPlay>();
     UI::UIContainer& container = UI::UISystem::GetContainerFromID(containerIDRight);
-    levelPlay->SetPositionAndSize(container.position, container.size);
+    Vector2 padding = {10.0f, 10.0f};
+    levelPlay->SetPositionAndSize(container.position + padding, container.size - padding * 2);
 }
 
 void Gasp::FrameUpdate() {
