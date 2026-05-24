@@ -20,6 +20,6 @@ void Gasp::FrameUpdate() {
 }
 
 void Gasp::DrawObjects() {
-    UI::UISystem::DrawAll();
     LevelPlay::LevelPlay::DrawAll();
+    UI::UISystem::DrawAll();
 }
