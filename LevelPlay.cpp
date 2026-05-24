@@ -109,7 +109,7 @@ namespace LevelPlay {
         Vector2 startPos {0.0f, 0.0f};
         float minXPos = containerPosition.x + enemySize;
         float maxXPos = containerPosition.x + containerSize.x - enemySize;
-        startPos.y = containerPosition.y + enemySize;
+        startPos.y = containerPosition.y - enemySize;
         startPos.x = Utils::GetRandomFloat(minXPos, maxXPos);
         return startPos;
     }
@@ -148,6 +148,25 @@ namespace LevelPlay {
         for (const GameObject& object : gameObjects) {
             DrawCircleLinesV(object.position, object.size, object.color);
         }
+
+        //Draw masking frame to hide enemies partially out of bounds
+        float maskWH = 30.0f;
+        Rectangle maskLeft {
+            containerPosition.x - maskWH,
+            containerPosition.y - maskWH,
+            maskWH,
+            containerSize.y + maskWH * 2};
+        Rectangle maskRight {
+            containerPosition.x + containerSize.x,
+            containerPosition.y - maskWH,
+            maskWH,
+            containerSize.y + maskWH * 2};
+        Rectangle maskTop {containerPosition.x, containerPosition.y - maskWH, containerSize.x, maskWH};
+        Rectangle maskBottom {containerPosition.x, containerPosition.y + containerSize.y, containerSize.x, maskWH};
+        DrawRectangleRec(maskLeft, BLACK);
+        DrawRectangleRec(maskRight, BLACK);
+        DrawRectangleRec(maskTop, BLACK);
+        DrawRectangleRec(maskBottom, BLACK);
     }
 
 
