@@ -21,7 +21,7 @@ namespace LevelPlay {
         Vector2 velocity;
         Color color;
         float size;
-        float animDesyncer = Utils::GetRandomFloat((0.0f), (1.0f));
+        float animDesync = Utils::GetRandomFloat((0.0f), (1.0f));
         int ID = Utils::UIDGenerator::GetNewUID();
     };
 
@@ -55,26 +55,28 @@ namespace LevelPlay {
 
     class LevelPlay {
     private:
-        std::vector<GameObject> gameObjects;
-        LevelWaveData levelWaveData {};
+        inline static std::vector<GameObject> gameObjects;
+        inline static LevelWaveData levelWaveData {};
+        inline static std::function<float(float)> speedModifierChoppy;
+        inline static std::function<float(float)> speedModifierSine;
+        inline static std::function<Vector2(float, Vector2)> movementAlgo1;
+        inline static Vector2 containerPosition {};
+        inline static Vector2 containerSize {};
 
     public:
-        std::function<float(float)> speedModifierChoppy;
-        std::function<float(float)> speedModifierSine;
-        std::function<Vector2(float, Vector2)> movementAlgo1;
-
         LevelPlay();
 
-        void AddWave(const EnemyData &enemyData, float delayBeforeFirst, float delayBetween, int enemyCount);
+        static void SetPositionAndSize(Vector2 position, Vector2 size);
+        static void AddWave(const EnemyData &enemyData, float delayBeforeFirst, float delayBetween, int enemyCount);
+
+        static void HandleEnemySpawns();
 
         static Vector2 GetRandomEnemyStartPosition(float enemySize);
-        int CreateGameObject(const GameObjectData& data);
-        void DestroyGameObject(int ID);
-
-        void SpawnEnemy(EnemyData enemyData);
-
-        void FrameUpdate();
-        void DrawAll();
-        [[nodiscard]] GameObjectData GetGameObjectData(int ID) const;
+        static int CreateGameObject(const GameObjectData& data);
+        static void DestroyGameObject(int ID);
+        static void SpawnEnemy(EnemyData enemyData);
+        static void FrameUpdate();
+        static void DrawAll();
+        static GameObjectData GetGameObjectData(int ID);
     };
 } // LevelPlay

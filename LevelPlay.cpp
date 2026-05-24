@@ -29,6 +29,11 @@ namespace LevelPlay {
         };
     }
 
+    void LevelPlay::SetPositionAndSize(Vector2 position, Vector2 size) {
+        containerPosition = position;
+        containerSize = size;
+    }
+
 
     void LevelPlay::AddWave(const EnemyData& enemyData, float delayBeforeFirst, float delayBetween, const int enemyCount) {
         levelWaveData.enemyWaves.emplace_back();
@@ -39,24 +44,34 @@ namespace LevelPlay {
         waveData.enemyCount = enemyCount;
     }
 
-    void LevelPlay::FrameUpdate() {
-        //Spawn enemies
-        if (!levelWaveData.enemyWaves.empty()) {
-            EnemyWaveData& currentWave = levelWaveData.enemyWaves[levelWaveData.wavesSpawned];
-            float spawnDelay = currentWave.enemiesSpawned == 0 ? currentWave.delayBeforeFirstSpawn : currentWave.delayBetweenSpawns;
-
-            if (levelWaveData.timeSinceLastSpawn >= spawnDelay) {
-                SpawnEnemy(currentWave.enemyData);
-                levelWaveData.timeSinceLastSpawn = 0;
-                currentWave.enemiesSpawned++;
-                if (currentWave.enemiesSpawned == currentWave.enemyCount) {
-                    levelWaveData.wavesSpawned++;
-                }
-            } else {
-                levelWaveData.timeSinceLastSpawn += Utils::ClampedDeltaTime(); // TODO: CHANGE, ONLY FOR DEBUGGING PURPOSES
-                // levelWaveData.timeSinceLastSpawn += GetFrameTime();
-            }
+    void LevelPlay::HandleEnemySpawns(){
+        if (levelWaveData.enemyWaves.empty()) {
+            return;
         }
+        if (levelWaveData.wavesSpawned == levelWaveData.enemyWaves.size()) {
+            return;
+        }
+        EnemyWaveData& currentWave = levelWaveData.enemyWaves[levelWaveData.wavesSpawned];
+        if (currentWave.enemiesSpawned == currentWave.enemyCount) {
+            return;
+        }
+
+        float spawnDelay = currentWave.enemiesSpawned == 0 ? currentWave.delayBeforeFirstSpawn : currentWave.delayBetweenSpawns;
+        if (levelWaveData.timeSinceLastSpawn >= spawnDelay) {
+            SpawnEnemy(currentWave.enemyData);
+            levelWaveData.timeSinceLastSpawn = 0;
+            currentWave.enemiesSpawned++;
+            if (currentWave.enemiesSpawned == currentWave.enemyCount) {
+                levelWaveData.wavesSpawned++;
+            }
+        } else {
+            levelWaveData.timeSinceLastSpawn += Utils::ClampedDeltaTime(); // TODO: REVERT THIS, TEMPORARY DEBUGGING PURPOSES
+            // levelWaveData.timeSinceLastSpawn += GetFrameTime();
+        }
+    }
+
+    void LevelPlay::FrameUpdate() {
+        HandleEnemySpawns();
 
         //Calculate velocities
 
@@ -69,13 +84,13 @@ namespace LevelPlay {
         for (int i = 0; i < gameObjects.size(); ++i) {
             GameObject& object = gameObjects[i];
             // object.position.x += object.velocity.x;
-            object.position.x += object.velocity.x * speedModifierSine(time + object.animDesyncer);
+            object.position.x += object.velocity.x * speedModifierSine(time + object.animDesync);
             // object.position.y += object.velocity.y;
-            object.position.y += object.velocity.y * speedModifierChoppy(time + object.animDesyncer);
+            object.position.y += object.velocity.y * speedModifierChoppy(time + object.animDesync);
 
-            if (object.position.y > screenHeight + object.size) {
-                indicesToDestroy.emplace_back(i);
-            }
+            // if (object.position.y > screenHeight + object.size) {
+            //     indicesToDestroy.emplace_back(i);
+            // }
         }
 
         // Destroy out of bounds objects
@@ -91,7 +106,12 @@ namespace LevelPlay {
     }
 
     Vector2 LevelPlay::GetRandomEnemyStartPosition(const float enemySize) {
-        return {static_cast<float>(GetRandomValue(50, GetScreenWidth()-50)), -enemySize};
+        Vector2 startPos {0.0f, 0.0f};
+        float minXPos = containerPosition.x + enemySize;
+        float maxXPos = containerPosition.x + containerSize.x - enemySize;
+        startPos.y = containerPosition.y + enemySize;
+        startPos.x = Utils::GetRandomFloat(minXPos, maxXPos);
+        return startPos;
     }
 
     // Creates gameObject and returns gameObject ID.
@@ -131,7 +151,7 @@ namespace LevelPlay {
     }
 
 
-    GameObjectData LevelPlay::GetGameObjectData(const int ID) const {
+    GameObjectData LevelPlay::GetGameObjectData(const int ID) {
         for (const GameObject& object : gameObjects) {
             if (object.ID == ID) {
                 return GameObjectData{object.position, object.velocity, object.color, object.size};

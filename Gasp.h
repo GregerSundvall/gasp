@@ -4,11 +4,11 @@
 
 class Gasp {
 private:
-    UI::UISystem uiSystem {};
-    LevelPlay::LevelPlay levelPlay;
+    inline static std::unique_ptr<UI::UISystem> uiSystem;
+    inline static std::unique_ptr<LevelPlay::LevelPlay> levelPlay;
 
 public:
     Gasp();
-    void FrameUpdate();
-    void DrawObjects();
+    static void FrameUpdate();
+    static void DrawObjects();
 };

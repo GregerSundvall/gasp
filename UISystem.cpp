@@ -6,13 +6,13 @@
 namespace UI {
     UISystem::UISystem() {
         // Create root UI container
-        int screenWidth = GetScreenWidth();
-        int screenHeight = GetScreenHeight();
-        float margin = 15.0f;
+        float screenWidth = static_cast<float>(GetScreenWidth());
+        float screenHeight = static_cast<float>(GetScreenHeight());
+        float windowMargin = 15.0f;
         uiContainers.reserve(1000);
         uiContainers.emplace_back();
-        uiContainers.back().position = {margin, margin};
-        uiContainers.back().size = {screenWidth - margin * 2, screenHeight - margin * 2};
+        uiContainers.back().position = {windowMargin, windowMargin};
+        uiContainers.back().size = {screenWidth - windowMargin * 2, screenHeight - windowMargin * 2};
     }
 
     int UISystem::AddChildContainerTo(const int parentID) {

@@ -25,27 +25,27 @@ namespace UI {
 
 
     class UISystem {
-        std::vector<UIContainer> uiContainers;
-        Color uiColor = {50, 150, 110, 255};
+        inline static std::vector<UIContainer> uiContainers;
+        inline static Color uiColor = {50, 150, 110, 255};
 
     public:
         UISystem();
 
-        int AddChildContainerTo(int parentID);
+        static int AddChildContainerTo(int parentID);
 
-        void AddChildrenContainersTo(int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection);
+        static void AddChildrenContainersTo(int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection);
 
-        UIContainer &GetRootContainer();
+        static UIContainer &GetRootContainer();
 
-        Vector2 GetAvailableSpaceIn(int containerID);
+        static Vector2 GetAvailableSpaceIn(int containerID);
 
-        void DrawNeonBorder(int containerID);
+        static void DrawNeonBorder(int containerID);
 
-        void DrawCornerCutBorder(int containerID);
+        static void DrawCornerCutBorder(int containerID);
 
-        void DrawAll();
+        static void DrawAll();
 
-        UIContainer& GetContainerFromID(int containerID);
+        static UIContainer& GetContainerFromID(int containerID);
     };
 }
 
