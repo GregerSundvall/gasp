@@ -75,11 +75,7 @@ namespace LevelPlay {
 
         //Calculate velocities
 
-
-
-        // Move everyone and check bounds
-        std::deque<int> indicesToDestroy;
-        float screenHeight = static_cast<float>(GetScreenHeight());
+        // Move everyone
         double time = GetTime();
         for (int i = 0; i < gameObjects.size(); ++i) {
             GameObject& object = gameObjects[i];
@@ -87,22 +83,21 @@ namespace LevelPlay {
             object.position.x += object.velocity.x * speedModifierSine(time + object.animDesync);
             // object.position.y += object.velocity.y;
             object.position.y += object.velocity.y * speedModifierChoppy(time + object.animDesync);
+        }
 
-            // if (object.position.y > screenHeight + object.size) {
-            //     indicesToDestroy.emplace_back(i);
-            // }
+        // Enemies bounds check
+        std::vector<int> idsToDestroy;
+        for (GameObject object : gameObjects) {
+            if (object.position.y > containerPosition.y + containerSize.y + object.size) {
+                idsToDestroy.emplace_back(object.ID);
+            }
         }
 
         // Destroy out of bounds objects
-        // while (!indicesToDestroy.empty()) {
-        //     if (indicesToDestroy.back() != gameObjects.size()-1) {
-        //         gameObjects[indicesToDestroy.back()] = gameObjects.back();
-        //     }
-        //     gameObjects.pop_back();
-        //
-        //     // DestroyGameObject(gameObjects[indicesToDestroy.back()].ID);
-        //     indicesToDestroy.pop_back();
-        // }
+        while (!idsToDestroy.empty()) {
+            DestroyGameObject(idsToDestroy.back());
+            idsToDestroy.pop_back();
+        }
     }
 
     Vector2 LevelPlay::GetRandomEnemyStartPosition(const float enemySize) {
@@ -126,14 +121,16 @@ namespace LevelPlay {
     }
 
     void LevelPlay::DestroyGameObject(const int ID) {
-        int indexToRemove;
+        int indexToRemove = -1;
         for (int i = 0 ; i <  gameObjects.size(); ++i) {
             if (gameObjects[i].ID == ID) {
                 indexToRemove = i;
                 break;
             }
         }
-        if (indexToRemove != gameObjects.size() -1) {
+        if (indexToRemove == -1) {return;}
+
+        if (indexToRemove < gameObjects.size() -1) {
             gameObjects[indexToRemove] = gameObjects.back();
         }
         gameObjects.pop_back();
