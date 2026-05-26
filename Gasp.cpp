@@ -4,7 +4,7 @@
 
 Gasp::Gasp() {
     uiSystem = std::make_unique<UI::UISystem>();
-    std::vector<int> containerIDs;
+    std::vector<uid> containerIDs;
     UI::UISystem::AddChildrenContainersTo(UI::UISystem::GetRootContainer().ID, 2, containerIDs, UI::UISplitDirection::Vertical);
     int containerIDLeft = containerIDs[0];
     int containerIDRight = containerIDs[1];

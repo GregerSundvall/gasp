@@ -81,14 +81,12 @@ namespace LevelPlay {
         double time = GetTime();
         for (int i = 0; i < gameObjects.size(); ++i) {
             GameObject& object = gameObjects[i];
-            // object.position.x += object.velocity.x;
             object.position.x += object.velocity.x * speedModifierSine(time + object.animDesync);
-            // object.position.y += object.velocity.y;
             object.position.y += object.velocity.y * speedModifierChoppy(time + object.animDesync);
         }
 
         // Enemies bounds check
-        std::vector<int> idsToDestroy;
+        std::vector<uid> idsToDestroy;
         for (GameObject object : gameObjects) {
             if (object.position.y > containerPosition.y + containerSize.y + object.size) {
                 idsToDestroy.emplace_back(object.ID);
@@ -111,7 +109,7 @@ namespace LevelPlay {
         return startPos;
     }
 
-    // Creates gameObject and returns gameObject ID.
+    // Creates a gameObject and returns gameObject ID.
     int LevelPlay::CreateGameObject(const GameObjectData& data) {
         gameObjects.emplace_back();
         GameObject& object = gameObjects.back();
@@ -122,7 +120,7 @@ namespace LevelPlay {
         return object.ID;
     }
 
-    void LevelPlay::DestroyGameObject(const int ID) {
+    void LevelPlay::DestroyGameObject(const uid ID) {
         int indexToRemove = -1;
         for (int i = 0 ; i <  gameObjects.size(); ++i) {
             if (gameObjects[i].ID == ID) {
@@ -169,7 +167,7 @@ namespace LevelPlay {
     }
 
 
-    GameObjectData LevelPlay::GetGameObjectData(const int ID) {
+    GameObjectData LevelPlay::GetGameObjectData(const uid ID) {
         for (const GameObject& object : gameObjects) {
             if (object.ID == ID) {
                 return GameObjectData{object.position, object.velocity, object.color, object.size};

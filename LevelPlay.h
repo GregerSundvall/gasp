@@ -22,7 +22,7 @@ namespace LevelPlay {
         Color color;
         float size;
         float animDesync = Utils::GetRandomFloat((0.0f), (1.0f));
-        int ID = Utils::UIDGenerator::GetNewUID();
+        uid ID = Utils::UIDGenerator::GetNewUID();
     };
 
     enum EnemyMovementType {
@@ -71,10 +71,10 @@ namespace LevelPlay {
         static void HandleEnemySpawns();
         static Vector2 GetRandomEnemyStartPosition(float enemySize);
         static int CreateGameObject(const GameObjectData& data);
-        static void DestroyGameObject(int ID);
+        static void DestroyGameObject(uid ID);
         static void SpawnEnemy(EnemyData enemyData);
         static void FrameUpdate();
         static void DrawAll();
-        static GameObjectData GetGameObjectData(int ID);
+        static GameObjectData GetGameObjectData(uid ID);
     };
 } // LevelPlay

@@ -17,7 +17,7 @@ namespace UI {
         Color color = {255, 255, 255, 255};
         float borderThickness = 3;
         float padding = 10;
-        int ID = Utils::UIDGenerator::GetNewUID();
+        uid ID = Utils::UIDGenerator::GetNewUID();
         int parentID = -1;
         std::vector<int> childrenIDs;
         bool drawBorder = true;
@@ -31,21 +31,21 @@ namespace UI {
     public:
         UISystem();
 
-        static int AddChildContainerTo(int parentID);
+        static uid AddChildContainerTo(uid parentID);
 
-        static void AddChildrenContainersTo(int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection);
+        static void AddChildrenContainersTo(uid parentID, int numChildren, std::vector<uid>& childrenIDs, UISplitDirection splitDirection);
 
         static UIContainer &GetRootContainer();
 
-        static Vector2 GetAvailableSpaceIn(int containerID);
+        static Vector2 GetAvailableSpaceIn(uid containerID);
 
-        static void DrawNeonBorder(int containerID);
+        static void DrawNeonBorder(uid containerID);
 
-        static void DrawCornerCutBorder(int containerID);
+        static void DrawCornerCutBorder(uid containerID);
 
         static void DrawAll();
 
-        static UIContainer& GetContainerFromID(int containerID);
+        static UIContainer& GetContainerFromID(uid containerID);
     };
 }
 

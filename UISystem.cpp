@@ -15,7 +15,7 @@ namespace UI {
         uiContainers.back().size = {screenWidth - windowMargin * 2, screenHeight - windowMargin * 2};
     }
 
-    int UISystem::AddChildContainerTo(const int parentID) {
+    int UISystem::AddChildContainerTo(const uid parentID) {
         uiContainers.emplace_back();
         UIContainer& child = uiContainers.back();
         child.parentID = parentID;
@@ -30,7 +30,7 @@ namespace UI {
         return child.ID;
     }
 
-    void UISystem::AddChildrenContainersTo(const int parentID, int numChildren, std::vector<int>& childrenIDs, UISplitDirection splitDirection) {
+    void UISystem::AddChildrenContainersTo(const uid parentID, int numChildren, std::vector<uid>& childrenIDs, UISplitDirection splitDirection) {
         childrenIDs.clear();
         childrenIDs.reserve(numChildren);
         UIContainer& parent = GetContainerFromID(parentID);
@@ -41,7 +41,7 @@ namespace UI {
             parent.childrenIDs.push_back(childrenIDs.back());
         }
 
-        for (const int& childID : childrenIDs) {
+        for (const uid& childID : childrenIDs) {
             GetContainerFromID(childID).parentID = parentID;
         }
 
@@ -78,13 +78,13 @@ namespace UI {
         return uiContainers.front();
     }
 
-    Vector2 UISystem::GetAvailableSpaceIn(const int containerID) {
+    Vector2 UISystem::GetAvailableSpaceIn(const uid containerID) {
         const UIContainer& box = GetContainerFromID(containerID);
         Vector2 size = {box.size.x - box.padding * 2, box.size.y - box.padding * 2};
         return size;
     }
 
-    void UISystem::DrawNeonBorder(int containerID) {
+    void UISystem::DrawNeonBorder(uid containerID) {
         UIContainer& container = GetContainerFromID(containerID);
         int posX = static_cast<int>(container.position.x);
         int posY = static_cast<int>(container.position.y);
@@ -100,7 +100,7 @@ namespace UI {
         DrawRectangleLines(posX+4, posY+4, width-8, height-8, dimmedColor2);
     }
 
-    void UISystem::DrawCornerCutBorder(int containerID) {
+    void UISystem::DrawCornerCutBorder(uid containerID) {
         UIContainer& container = GetContainerFromID(containerID);
         Vector2 cornerCutWidth {40.0f, 0.0f};
         Vector2 cornerCutHeight {0.0f, 40.0f};
@@ -126,7 +126,7 @@ namespace UI {
         }
     }
 
-    UIContainer& UISystem::GetContainerFromID(int containerID) {
+    UIContainer& UISystem::GetContainerFromID(uid containerID) {
         for (UIContainer& container : uiContainers) {
             if (container.ID == containerID) {
                 return container;

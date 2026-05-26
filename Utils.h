@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <random>
-
 #include "raylib.h"
 
+using uid = int;
 
 // Operator overloads for raylib's Vector2
 inline Vector2 operator+(const Vector2& lhs, const Vector2& rhs) {
@@ -39,8 +39,8 @@ namespace Utils {
 
     class UIDGenerator {
     public:
-        static int GetNewUID() {
-            static int currentId = 0;
+        static uid GetNewUID() {
+            static uid currentId = 0;
             return currentId++;
         }
         UIDGenerator() = delete;
