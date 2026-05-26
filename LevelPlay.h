@@ -62,6 +62,7 @@ namespace LevelPlay {
         inline static std::function<Vector2(float, Vector2)> movementAlgo1;
         inline static Vector2 containerPosition {};
         inline static Vector2 containerSize {};
+        inline static uid playerObjectID;
 
     public:
         LevelPlay();

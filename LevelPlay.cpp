@@ -6,6 +6,9 @@ namespace LevelPlay {
     LevelPlay::LevelPlay() {
         gameObjects.reserve(1000);
 
+        // Vector2 playerPosition = {};
+        // GameObjectData playerData = {{0, 0, 0.1f, 0.1f, {255, 255, 255, 255}, 1.0f}};
+
         EnemyData enemyType1 = {{0, 0, 0.1f, 0.8f,
                                 {80, 235, 121, 255}, 15.0f}, Linear};
         AddWave(enemyType1, 0.0f, 2.0f, 5);
@@ -88,7 +91,7 @@ namespace LevelPlay {
         // Enemies bounds check
         std::vector<uid> idsToDestroy;
         for (GameObject object : gameObjects) {
-            if (object.position.y > containerPosition.y + containerSize.y + object.size) {
+            if (object.position.y > containerSize.y + object.size) {
                 idsToDestroy.emplace_back(object.ID);
             }
         }
@@ -102,9 +105,9 @@ namespace LevelPlay {
 
     Vector2 LevelPlay::GetRandomEnemyStartPosition(const float enemySize) {
         Vector2 startPos {0.0f, 0.0f};
-        float minXPos = containerPosition.x + enemySize;
-        float maxXPos = containerPosition.x + containerSize.x - enemySize;
-        startPos.y = containerPosition.y - enemySize;
+        float minXPos = enemySize;
+        float maxXPos = containerSize.x - enemySize;
+        startPos.y = -enemySize;
         startPos.x = Utils::GetRandomFloat(minXPos, maxXPos);
         return startPos;
     }
@@ -142,15 +145,16 @@ namespace LevelPlay {
     }
 
     void LevelPlay::DrawAll() {
+        Vector2 screenOffset = containerPosition;
         for (const GameObject& object : gameObjects) {
-            DrawCircleLinesV(object.position, object.size, object.color);
+            DrawCircleLinesV(object.position + screenOffset, object.size, object.color);
         }
 
         //Draw masking frame to hide enemies partially out of bounds
         float maskWH = 30.0f;
         Rectangle maskLeft {
-            containerPosition.x - maskWH,
-            containerPosition.y - maskWH,
+            screenOffset.x - maskWH,
+            screenOffset.y - maskWH,
             maskWH,
             containerSize.y + maskWH * 2};
         Rectangle maskRight {
@@ -158,8 +162,8 @@ namespace LevelPlay {
             containerPosition.y - maskWH,
             maskWH,
             containerSize.y + maskWH * 2};
-        Rectangle maskTop {containerPosition.x, containerPosition.y - maskWH, containerSize.x, maskWH};
-        Rectangle maskBottom {containerPosition.x, containerPosition.y + containerSize.y, containerSize.x, maskWH};
+        Rectangle maskTop {screenOffset.x, screenOffset.y - maskWH, containerSize.x, maskWH};
+        Rectangle maskBottom {screenOffset.x, screenOffset.y + containerSize.y, containerSize.x, maskWH};
         DrawRectangleRec(maskLeft, BLACK);
         DrawRectangleRec(maskRight, BLACK);
         DrawRectangleRec(maskTop, BLACK);
