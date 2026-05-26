@@ -13,29 +13,31 @@ namespace LevelPlay {
     void LevelPlay::Init(const Vector2 &position, const Vector2 &size) {
         SetPositionAndSize(position, size);
 
-        float scale = 1.0f;
-        Vector2 playerPos = {containerSize.x / 2, containerSize.y - scale};
-        GameObjectData playerData = {playerPos, Vector2Zero(), WHITE, scale};
+        float playerDistanceFromBottom = 15.0f;
+        Vector2 playerPos = {containerSize.x / 2, containerSize.y - playerDistanceFromBottom};
+        std::vector<Vector2> playerVertices {{0.0f, -10.0f}, {10.0f, 10.0f}, {-10.0f, 10.0f}};
+        std::vector<int> playerIndices {{0, 1, 2}};
+        uid playerShapeID = CreateShape(playerVertices, playerIndices);
+        float playerScale = 1.0f;
+        Vector2 rotationUp = {0.0f, 1.0f};
+        GameObjectData playerData = {playerPos, rotationUp, Vector2Zero(), WHITE, playerScale, playerShapeID};
         playerObjectID = CreateGameObject(playerData);
-
-        std::vector<Vector2> vertices {{0.0f, -10.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f}};
-        std::vector<int> indices {{0, 1, 2}};
-        uid shapeID = CreateShape(vertices, indices);
 
 
         Color enemyGreen {80, 235, 121, 255};
         Color enemyPurple {98, 70, 212, 255};
         Color enemyRed {222, 42, 135, 255};
-        EnemyData enemyType1 = {{Vector2Zero(), 0.1f, 0.8f,
-                                enemyGreen, 15.0f, shapeID}, Linear};
+        Vector2 rotationDown = {0.0f, -1.0f};
+        EnemyData enemyType1 = {{Vector2Zero(), rotationDown, 0.1f, 0.8f,
+                                enemyGreen, 1.0f, playerShapeID}, Linear};
         AddWave(enemyType1, 0.0f, 2.0f, 5);
 
-        EnemyData enemyType2 = {{Vector2Zero(), 0.1f, 1.4f,
-                                enemyPurple, 12.0f, shapeID}, Linear};
+        EnemyData enemyType2 = {{Vector2Zero(), rotationDown, 0.1f, 1.4f,
+                                enemyPurple, 1.0f, playerShapeID}, Linear};
         AddWave(enemyType2, 2.0f, 2.0f, 5);
 
-        EnemyData enemyType3 = {{Vector2Zero(), 0.1f, 2.0f,
-                                enemyRed, 10.0f, shapeID}, Linear};
+        EnemyData enemyType3 = {{Vector2Zero(), rotationDown, 0.1f, 2.0f,
+                                enemyRed, 1.0f, playerShapeID}, Linear};
         AddWave(enemyType3, 2.0f, 2.0f, 5);
 
         // speedModifier = [](float time) { return 1.0f + (time * 0.1f); };
@@ -93,7 +95,9 @@ namespace LevelPlay {
     void LevelPlay::FrameUpdate() {
         HandleEnemySpawns();
 
-        //Calculate velocities
+        //Calculate velocities separately first?
+
+        // Options for rotation follows velocity, or velocity follows rotation..?
 
         // Move everyone
         double time = GetTime();
@@ -132,6 +136,7 @@ namespace LevelPlay {
         gameObjects.emplace_back();
         GameObject& object = gameObjects.back();
         object.position = data.position;
+        object.rotation = data.rotation;
         object.velocity = data.velocity;
         object.color = data.color;
         object.scale = data.scale;
@@ -176,9 +181,9 @@ namespace LevelPlay {
 
     void LevelPlay::DrawAll() {
         Vector2 screenOffset = containerPosition;
-        for (const GameObject& object : gameObjects) {
-            DrawCircleLinesV(object.position + screenOffset, object.scale, object.color);
-        }
+        // for (const GameObject& object : gameObjects) {
+        //     DrawCircleLinesV(object.position + screenOffset, object.scale, object.color);
+        // }
 
         shapesToDraw.clear();
         for (const GameObject& object : gameObjects) {
@@ -195,9 +200,9 @@ namespace LevelPlay {
                 shapesToDraw.emplace_back(shape.id);
                 index = shapesToDraw.size() - 1;
             }
-            // Set shape data
-            shapesToDraw[index].instances.emplace_back(object.position, object.velocity, object.color, object.scale);
-            // Velocity will never get used here ^. Rotation missing. Maybe use another struct? Add Rotation to objectData struct?
+            // Set shape details
+            shapesToDraw[index].instances.emplace_back(object.position, object.rotation, object.velocity, object.color, object.scale);
+            // Velocity will never get used here ^. Maybe better anyway to use another struct?
         }
 
         float thickness = 2.0f;
@@ -240,7 +245,7 @@ namespace LevelPlay {
     GameObjectData LevelPlay::GetGameObjectData(const uid ID) {
         for (const GameObject& object : gameObjects) {
             if (object.ID == ID) {
-                return GameObjectData{object.position, object.velocity, object.color, object.scale};
+                return GameObjectData{object.position, object.rotation, object.velocity, object.color, object.scale};
             }
         }
         return {};
