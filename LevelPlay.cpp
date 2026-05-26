@@ -1,24 +1,35 @@
 ﻿
 #include "LevelPlay.h"
+
+#include "raymath.h"
 #include "Utils.h"
 
 namespace LevelPlay {
     LevelPlay::LevelPlay() {
         gameObjects.reserve(1000);
+    }
 
-        // Vector2 playerPosition = {};
-        // GameObjectData playerData = {{0, 0, 0.1f, 0.1f, {255, 255, 255, 255}, 1.0f}};
+    void LevelPlay::Init(const Vector2 &position, const Vector2 &size) {
+        SetPositionAndSize(position, size);
 
-        EnemyData enemyType1 = {{0, 0, 0.1f, 0.8f,
-                                {80, 235, 121, 255}, 15.0f}, Linear};
+        float playerSize = 15.0f;
+        Vector2 playerPos = {containerSize.x / 2, containerSize.y - playerSize};
+        GameObjectData playerData = {playerPos, Vector2Zero(), WHITE, playerSize};
+        playerObjectID = CreateGameObject(playerData);
+
+        Color enemyGreen {80, 235, 121, 255};
+        Color enemyPurple {98, 70, 212, 255};
+        Color enemyRed {222, 42, 135, 255};
+        EnemyData enemyType1 = {{Vector2Zero(), 0.1f, 0.8f,
+                                enemyGreen, 15.0f}, Linear};
         AddWave(enemyType1, 0.0f, 2.0f, 5);
 
-        EnemyData enemyType2 = {{0, 0, 0.1f, 1.4f,
-                                {98, 70, 212, 255}, 12.0f}, Linear};
+        EnemyData enemyType2 = {{Vector2Zero(), 0.1f, 1.4f,
+                                enemyPurple, 12.0f}, Linear};
         AddWave(enemyType2, 2.0f, 2.0f, 5);
 
-        EnemyData enemyType3 = {{0, 0, 0.1f, 2.0f,
-                                {222, 42, 135, 255}, 10.0f}, Linear};
+        EnemyData enemyType3 = {{Vector2Zero(), 0.1f, 2.0f,
+                                enemyRed, 10.0f}, Linear};
         AddWave(enemyType3, 2.0f, 2.0f, 5);
 
         // speedModifier = [](float time) { return 1.0f + (time * 0.1f); };
@@ -30,8 +41,6 @@ namespace LevelPlay {
             float y = static_cast<int>(time) % 2 == 0 ? 1.5f : 0.5f;
             return Vector2{x, y};
         };
-
-
     }
 
     void LevelPlay::SetPositionAndSize(Vector2 position, Vector2 size) {
@@ -104,7 +113,7 @@ namespace LevelPlay {
     }
 
     Vector2 LevelPlay::GetRandomEnemyStartPosition(const float enemySize) {
-        Vector2 startPos {0.0f, 0.0f};
+        Vector2 startPos = Vector2Zero();
         float minXPos = enemySize;
         float maxXPos = containerSize.x - enemySize;
         startPos.y = -enemySize;

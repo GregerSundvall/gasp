@@ -67,6 +67,7 @@ namespace LevelPlay {
     public:
         LevelPlay();
 
+        static void Init(const Vector2& position, const Vector2& size);
         static void SetPositionAndSize(Vector2 position, Vector2 size);
         static void AddWave(const EnemyData &enemyData, float delayBeforeFirst, float delayBetween, int enemyCount);
         static void HandleEnemySpawns();

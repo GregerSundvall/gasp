@@ -1,7 +1,7 @@
 ﻿
 #include "UISystem.h"
 #include "Utils.h"
-
+#include "raymath.h"
 
 namespace UI {
     UISystem::UISystem() {
@@ -111,11 +111,11 @@ namespace UI {
         Vector2 downRight = {container.position.x + container.size.x, container.position.y + container.size.y};
 
         DrawLineEx(upLeft, upRight-cornerCutWidth, thickness, uiColor);
-        DrawLineEx(upRight-cornerCutWidth, upRight+cornerCutHeight, thickness, uiColor);
-        DrawLineEx(upRight+cornerCutHeight, downRight, thickness, uiColor);
-        DrawLineEx(upLeft, downLeft-cornerCutHeight, thickness, uiColor);
-        DrawLineEx(downLeft-cornerCutHeight, downLeft+cornerCutWidth, thickness, uiColor);
-        DrawLineEx(downLeft+cornerCutWidth, downRight, thickness, uiColor);
+        DrawLineEx(upRight - cornerCutWidth, upRight + cornerCutHeight, thickness, uiColor);
+        DrawLineEx(upRight + cornerCutHeight, downRight, thickness, uiColor);
+        DrawLineEx(upLeft, downLeft - cornerCutHeight, thickness, uiColor);
+        DrawLineEx(downLeft - cornerCutHeight, downLeft + cornerCutWidth, thickness, uiColor);
+        DrawLineEx(downLeft + cornerCutWidth, downRight, thickness, uiColor);
     }
 
     void UISystem::DrawAll() {
