@@ -12,7 +12,8 @@ namespace LevelPlay {
         Vector2 position;
         Vector2 velocity;
         Color color;
-        float size;
+        float scale;
+        uid shapeID;
     };
 
     struct GameObject {
@@ -20,7 +21,8 @@ namespace LevelPlay {
         Vector2 positionAnimOffset;
         Vector2 velocity;
         Color color;
-        float size;
+        float scale;
+        uid shapeID;
         float animDesync = Utils::GetRandomFloat((0.0f), (1.0f));
         uid ID = Utils::UIDGenerator::GetNewUID();
     };
@@ -50,6 +52,18 @@ namespace LevelPlay {
         float timeSinceLastSpawn = 0;
     };
 
+    struct Shape {
+        std::vector<Vector2> vertices;
+        std::vector<int> indices;
+        uid id = Utils::UIDGenerator::GetNewUID();
+    };
+
+
+    struct ShapeDrawList {
+        uid shapeID;
+        std::vector<GameObjectData> instances;
+    };
+
     // using SpeedAlgorithm = std::function<float(float)>;
     // using MovementAlgo = std::function<Vector2(float, Vector2)>;
 
@@ -63,6 +77,9 @@ namespace LevelPlay {
         inline static Vector2 containerPosition {};
         inline static Vector2 containerSize {};
         inline static uid playerObjectID;
+        inline static std::vector<Shape> shapes;
+        inline static std::vector<ShapeDrawList> shapesToDraw;
+
 
     public:
         LevelPlay();
@@ -75,7 +92,9 @@ namespace LevelPlay {
         static int CreateGameObject(const GameObjectData& data);
         static void DestroyGameObject(uid ID);
         static void SpawnEnemy(EnemyData enemyData);
+        static uid CreateShape(const std::vector<Vector2> &vertices, const std::vector<int> &indices);
         static void FrameUpdate();
+        static Shape& GetShapeFromID(const uid shapeID);
         static void DrawAll();
         static GameObjectData GetGameObjectData(uid ID);
     };

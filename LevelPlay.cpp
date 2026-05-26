@@ -7,29 +7,35 @@
 namespace LevelPlay {
     LevelPlay::LevelPlay() {
         gameObjects.reserve(1000);
+        shapesToDraw.reserve(1000);
     }
 
     void LevelPlay::Init(const Vector2 &position, const Vector2 &size) {
         SetPositionAndSize(position, size);
 
-        float playerSize = 15.0f;
-        Vector2 playerPos = {containerSize.x / 2, containerSize.y - playerSize};
-        GameObjectData playerData = {playerPos, Vector2Zero(), WHITE, playerSize};
+        float scale = 1.0f;
+        Vector2 playerPos = {containerSize.x / 2, containerSize.y - scale};
+        GameObjectData playerData = {playerPos, Vector2Zero(), WHITE, scale};
         playerObjectID = CreateGameObject(playerData);
+
+        std::vector<Vector2> vertices {{0.0f, -10.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f}};
+        std::vector<int> indices {{0, 1, 2}};
+        uid shapeID = CreateShape(vertices, indices);
+
 
         Color enemyGreen {80, 235, 121, 255};
         Color enemyPurple {98, 70, 212, 255};
         Color enemyRed {222, 42, 135, 255};
         EnemyData enemyType1 = {{Vector2Zero(), 0.1f, 0.8f,
-                                enemyGreen, 15.0f}, Linear};
+                                enemyGreen, 15.0f, shapeID}, Linear};
         AddWave(enemyType1, 0.0f, 2.0f, 5);
 
         EnemyData enemyType2 = {{Vector2Zero(), 0.1f, 1.4f,
-                                enemyPurple, 12.0f}, Linear};
+                                enemyPurple, 12.0f, shapeID}, Linear};
         AddWave(enemyType2, 2.0f, 2.0f, 5);
 
         EnemyData enemyType3 = {{Vector2Zero(), 0.1f, 2.0f,
-                                enemyRed, 10.0f}, Linear};
+                                enemyRed, 10.0f, shapeID}, Linear};
         AddWave(enemyType3, 2.0f, 2.0f, 5);
 
         // speedModifier = [](float time) { return 1.0f + (time * 0.1f); };
@@ -100,7 +106,7 @@ namespace LevelPlay {
         // Enemies bounds check
         std::vector<uid> idsToDestroy;
         for (GameObject object : gameObjects) {
-            if (object.position.y > containerSize.y + object.size) {
+            if (object.position.y > containerSize.y + object.scale) {
                 idsToDestroy.emplace_back(object.ID);
             }
         }
@@ -128,7 +134,8 @@ namespace LevelPlay {
         object.position = data.position;
         object.velocity = data.velocity;
         object.color = data.color;
-        object.size = data.size;
+        object.scale = data.scale;
+        object.shapeID = data.shapeID;
         return object.ID;
     }
 
@@ -149,15 +156,65 @@ namespace LevelPlay {
     }
 
     void LevelPlay::SpawnEnemy(EnemyData enemyData) {
-        enemyData.gameObjectData.position = GetRandomEnemyStartPosition(enemyData.gameObjectData.size);
+        enemyData.gameObjectData.position = GetRandomEnemyStartPosition(enemyData.gameObjectData.scale);
         CreateGameObject(enemyData.gameObjectData);
+    }
+
+    uid LevelPlay::CreateShape(const std::vector<Vector2> &vertices, const std::vector<int> &indices) {
+        shapes.emplace_back(Shape(vertices, indices));
+        return shapes.back().id;
+    }
+
+    Shape& LevelPlay::GetShapeFromID(const uid shapeID) {
+        for (Shape& shape : shapes) {
+            if (shape.id == shapeID) {
+                return shape;
+            }
+        }
+        return shapes.front();
     }
 
     void LevelPlay::DrawAll() {
         Vector2 screenOffset = containerPosition;
         for (const GameObject& object : gameObjects) {
-            DrawCircleLinesV(object.position + screenOffset, object.size, object.color);
+            DrawCircleLinesV(object.position + screenOffset, object.scale, object.color);
         }
+
+        shapesToDraw.clear();
+        for (const GameObject& object : gameObjects) {
+            // If shape is not in shapesToDraw, add it.
+            int index = -1;
+            for (int i = 0; i < shapesToDraw.size(); ++i) {
+                if (shapesToDraw[i].shapeID == object.shapeID) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                Shape& shape = GetShapeFromID(object.shapeID);
+                shapesToDraw.emplace_back(shape.id);
+                index = shapesToDraw.size() - 1;
+            }
+            // Set shape data
+            shapesToDraw[index].instances.emplace_back(object.position, object.velocity, object.color, object.scale);
+            // Velocity will never get used here ^. Rotation missing. Maybe use another struct? Add Rotation to objectData struct?
+        }
+
+        float thickness = 2.0f;
+        for (const ShapeDrawList& drawList : shapesToDraw) {
+            const Shape shape = GetShapeFromID(drawList.shapeID);
+            for (const GameObjectData& instance : drawList.instances) {
+                for (int i = 0; i < shape.vertices.size(); i += 1) {
+                    int wrappingIndex = (i + 1) % shape.vertices.size();
+                    DrawLineEx(
+                        screenOffset + instance.position + shape.vertices[i] * instance.scale,
+                        screenOffset + instance.position + shape.vertices[wrappingIndex] * instance.scale,
+                        thickness,
+                        instance.color);
+                }
+            }
+        }
+
 
         //Draw masking frame to hide enemies partially out of bounds
         float maskWH = 30.0f;
@@ -183,7 +240,7 @@ namespace LevelPlay {
     GameObjectData LevelPlay::GetGameObjectData(const uid ID) {
         for (const GameObject& object : gameObjects) {
             if (object.ID == ID) {
-                return GameObjectData{object.position, object.velocity, object.color, object.size};
+                return GameObjectData{object.position, object.velocity, object.color, object.scale};
             }
         }
         return {};
