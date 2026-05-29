@@ -12,7 +12,6 @@ namespace LevelPlay {
         Vector2 position;
         Vector2 rotation;
         Vector2 velocity;
-        Color color;
         float scale;
         uid shapeID;
     };
@@ -22,7 +21,6 @@ namespace LevelPlay {
         Vector2 rotation;
         Vector2 positionAnimOffset;
         Vector2 velocity;
-        Color color;
         float scale;
         uid shapeID;
         float animDesync = Utils::GetRandomFloat((0.0f), (1.0f));
@@ -57,9 +55,17 @@ namespace LevelPlay {
     struct Shape {
         std::vector<Vector2> vertices;
         std::vector<int> indices;
+        Color color = WHITE;
+        float thickness = 2.0f;
         uid id = Utils::UIDGenerator::GetNewUID();
     };
 
+    struct ShapeDrawData {
+        std::vector<Vector2> vertices;
+        std::vector<int> indices;
+        float thickness = 2.0f;
+        Color color = WHITE;
+    };
 
     struct ShapeDrawList {
         uid shapeID;
@@ -94,7 +100,7 @@ namespace LevelPlay {
         static int CreateGameObject(const GameObjectData& data);
         static void DestroyGameObject(uid ID);
         static void SpawnEnemy(EnemyData enemyData);
-        static uid CreateShape(const std::vector<Vector2> &vertices, const std::vector<int> &indices);
+        static uid CreateShape(const std::vector<Vector2> &vertices, const std::vector<int> &indices, Color color = WHITE, float thickness = 2.0f);
         static void FrameUpdate();
         static Shape& GetShapeFromID(const uid shapeID);
         static void DrawAll();

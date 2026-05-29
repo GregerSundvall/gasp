@@ -13,31 +13,41 @@ namespace LevelPlay {
     void LevelPlay::Init(const Vector2 &position, const Vector2 &size) {
         SetPositionAndSize(position, size);
 
-        float playerDistanceFromBottom = 15.0f;
+        float playerDistanceFromBottom = 25.0f;
         Vector2 playerPos = {containerSize.x / 2, containerSize.y - playerDistanceFromBottom};
-        std::vector<Vector2> playerVertices {{0.0f, -10.0f}, {10.0f, 10.0f}, {-10.0f, 10.0f}};
-        std::vector<int> playerIndices {{0, 1, 2}};
+        std::vector<Vector2> playerVertices {{0.0f, -10.0f}, {-5.0f, 10.0f}, {5.0f, 10.0f}};
+        std::vector<int> playerIndices {{0, 1, 2, 0}};
         uid playerShapeID = CreateShape(playerVertices, playerIndices);
-        float playerScale = 1.0f;
+        float playerScale = 2.0f;
         Vector2 rotationUp = {0.0f, 1.0f};
-        GameObjectData playerData = {playerPos, rotationUp, Vector2Zero(), WHITE, playerScale, playerShapeID};
+        GameObjectData playerData = {playerPos, rotationUp, Vector2Zero(), playerScale, playerShapeID};
         playerObjectID = CreateGameObject(playerData);
-
 
         Color enemyGreen {80, 235, 121, 255};
         Color enemyPurple {98, 70, 212, 255};
         Color enemyRed {222, 42, 135, 255};
+        std::vector<Vector2> enemyVertices {
+            {0.0f, 5.0f},
+            {-5.0f, 10.0f},
+            {0.0f, -10.0f},
+            {5.0f, 10.0f}};
+        std::vector<int> enemyIndices {{0, 1, 2, 3, 0}};
+        uid enemyShapeGreenID = CreateShape(enemyVertices, enemyIndices, enemyGreen);
+        uid enemyShapePurpleID = CreateShape(enemyVertices, enemyIndices, enemyPurple);
+        uid enemyShapeRedID = CreateShape(enemyVertices, enemyIndices, enemyRed);
+        float enemyScale = 2.0f;
         Vector2 rotationDown = {0.0f, -1.0f};
+        // GameObjectData enemyData = {Vector2Zero(), rotationDown, Vector2Zero(), WHITE, enemyScale, enemyShapeID};
         EnemyData enemyType1 = {{Vector2Zero(), rotationDown, 0.1f, 0.8f,
-                                enemyGreen, 1.0f, playerShapeID}, Linear};
+                                enemyScale, enemyShapeGreenID}, Linear};
         AddWave(enemyType1, 0.0f, 2.0f, 5);
 
         EnemyData enemyType2 = {{Vector2Zero(), rotationDown, 0.1f, 1.4f,
-                                enemyPurple, 1.0f, playerShapeID}, Linear};
+                                enemyScale, enemyShapePurpleID}, Linear};
         AddWave(enemyType2, 2.0f, 2.0f, 5);
 
         EnemyData enemyType3 = {{Vector2Zero(), rotationDown, 0.1f, 2.0f,
-                                enemyRed, 1.0f, playerShapeID}, Linear};
+                                enemyScale, enemyShapeRedID}, Linear};
         AddWave(enemyType3, 2.0f, 2.0f, 5);
 
         // speedModifier = [](float time) { return 1.0f + (time * 0.1f); };
@@ -138,7 +148,6 @@ namespace LevelPlay {
         object.position = data.position;
         object.rotation = data.rotation;
         object.velocity = data.velocity;
-        object.color = data.color;
         object.scale = data.scale;
         object.shapeID = data.shapeID;
         return object.ID;
@@ -165,8 +174,8 @@ namespace LevelPlay {
         CreateGameObject(enemyData.gameObjectData);
     }
 
-    uid LevelPlay::CreateShape(const std::vector<Vector2> &vertices, const std::vector<int> &indices) {
-        shapes.emplace_back(Shape(vertices, indices));
+    uid LevelPlay::CreateShape(const std::vector<Vector2> &vertices, const std::vector<int> &indices, Color color, float thickness) {
+        shapes.emplace_back(Shape(vertices, indices, color, thickness));
         return shapes.back().id;
     }
 
@@ -181,45 +190,37 @@ namespace LevelPlay {
 
     void LevelPlay::DrawAll() {
         Vector2 screenOffset = containerPosition;
-        // for (const GameObject& object : gameObjects) {
-        //     DrawCircleLinesV(object.position + screenOffset, object.scale, object.color);
-        // }
 
-        shapesToDraw.clear();
+        std::vector<ShapeDrawData> stuffToDraw;
+        stuffToDraw.reserve(gameObjects.size());
         for (const GameObject& object : gameObjects) {
-            // If shape is not in shapesToDraw, add it.
-            int index = -1;
-            for (int i = 0; i < shapesToDraw.size(); ++i) {
-                if (shapesToDraw[i].shapeID == object.shapeID) {
-                    index = i;
-                    break;
-                }
+            ShapeDrawData shapeDrawData;
+            Shape shape = GetShapeFromID(object.shapeID);
+            shapeDrawData.vertices = shape.vertices;
+            shapeDrawData.indices = shape.indices;
+            shapeDrawData.thickness = shape.thickness;
+            shapeDrawData.color = shape.color;
+            for (Vector2& vertex : shapeDrawData.vertices) {
+                // X/Y transposed(?) to rotate 90°
+                float cosAngle = object.rotation.y;
+                float sinAngle = -object.rotation.x;
+                float rotatedX = vertex.x * cosAngle - vertex.y * sinAngle;
+                float rotatedY = vertex.x * sinAngle + vertex.y * cosAngle;
+                vertex.x = rotatedX;
+                vertex.y = rotatedY;
+                vertex *= object.scale;
+                vertex += object.position + screenOffset;
             }
-            if (index == -1) {
-                Shape& shape = GetShapeFromID(object.shapeID);
-                shapesToDraw.emplace_back(shape.id);
-                index = shapesToDraw.size() - 1;
-            }
-            // Set shape details
-            shapesToDraw[index].instances.emplace_back(object.position, object.rotation, object.velocity, object.color, object.scale);
-            // Velocity will never get used here ^. Maybe better anyway to use another struct?
+            stuffToDraw.emplace_back(shapeDrawData);
         }
 
-        float thickness = 2.0f;
-        for (const ShapeDrawList& drawList : shapesToDraw) {
-            const Shape shape = GetShapeFromID(drawList.shapeID);
-            for (const GameObjectData& instance : drawList.instances) {
-                for (int i = 0; i < shape.vertices.size(); i += 1) {
-                    int wrappingIndex = (i + 1) % shape.vertices.size();
-                    DrawLineEx(
-                        screenOffset + instance.position + shape.vertices[i] * instance.scale,
-                        screenOffset + instance.position + shape.vertices[wrappingIndex] * instance.scale,
-                        thickness,
-                        instance.color);
-                }
+        for (const ShapeDrawData& shapeDrawData : stuffToDraw) {
+            for (int i = 0; i < shapeDrawData.indices.size() -1; i += 1) {
+                int beginVertexIndex = shapeDrawData.indices[i];
+                int endVertexIndex = shapeDrawData.indices[i + 1];
+                DrawLineEx(shapeDrawData.vertices[beginVertexIndex], shapeDrawData.vertices[endVertexIndex], shapeDrawData.thickness, shapeDrawData.color);
             }
         }
-
 
         //Draw masking frame to hide enemies partially out of bounds
         float maskWH = 30.0f;
@@ -245,7 +246,7 @@ namespace LevelPlay {
     GameObjectData LevelPlay::GetGameObjectData(const uid ID) {
         for (const GameObject& object : gameObjects) {
             if (object.ID == ID) {
-                return GameObjectData{object.position, object.rotation, object.velocity, object.color, object.scale};
+                return GameObjectData{object.position, object.rotation, object.velocity, object.scale};
             }
         }
         return {};
