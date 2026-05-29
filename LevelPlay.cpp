@@ -11,7 +11,7 @@ namespace LevelPlay {
     }
 
     void LevelPlay::Init(const Vector2 &position, const Vector2 &size) {
-        SetPositionAndSize(position, size);
+        SetContainerPositionAndSize(position, size);
 
         float playerDistanceFromBottom = 25.0f;
         Vector2 playerPos = {containerSize.x / 2, containerSize.y - playerDistanceFromBottom};
@@ -35,7 +35,7 @@ namespace LevelPlay {
         uid enemyShapeGreenID = CreateShape(enemyVertices, enemyIndices, enemyGreen);
         uid enemyShapePurpleID = CreateShape(enemyVertices, enemyIndices, enemyPurple);
         uid enemyShapeRedID = CreateShape(enemyVertices, enemyIndices, enemyRed);
-        float enemyScale = 2.0f;
+        float enemyScale = 2.5f;
         Vector2 rotationDown = {0.0f, -1.0f};
         // GameObjectData enemyData = {Vector2Zero(), rotationDown, Vector2Zero(), WHITE, enemyScale, enemyShapeID};
         EnemyData enemyType1 = {{Vector2Zero(), rotationDown, 0.1f, 0.8f,
@@ -61,7 +61,27 @@ namespace LevelPlay {
         };
     }
 
-    void LevelPlay::SetPositionAndSize(Vector2 position, Vector2 size) {
+    void LevelPlay::HandleInput() {
+        if (IsKeyDown(KEY_LEFT)) {
+            GameObject& player = GetGameObject(playerObjectID);
+            player.rotation = Vector2Rotate(player.rotation, -0.01f);
+        }
+        if (IsKeyDown(KEY_RIGHT)) {
+            GameObject& player = GetGameObject(playerObjectID);
+            player.rotation = Vector2Rotate(player.rotation, 0.01f);
+        }
+    }
+
+    GameObject& LevelPlay::GetGameObject(const uid id) {
+        for (GameObject& object : gameObjects) {
+            if (object.ID == id) {
+                return object;
+            }
+        }
+        return gameObjects.front();
+    }
+
+    void LevelPlay::SetContainerPositionAndSize(Vector2 position, Vector2 size) {
         containerPosition = position;
         containerSize = size;
     }
@@ -201,7 +221,6 @@ namespace LevelPlay {
             shapeDrawData.thickness = shape.thickness;
             shapeDrawData.color = shape.color;
             for (Vector2& vertex : shapeDrawData.vertices) {
-                // X/Y transposed(?) to rotate 90°
                 float cosAngle = object.rotation.y;
                 float sinAngle = -object.rotation.x;
                 float rotatedX = vertex.x * cosAngle - vertex.y * sinAngle;

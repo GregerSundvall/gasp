@@ -6,22 +6,36 @@
 Gasp::Gasp() {
     uiSystem = std::make_unique<UI::UISystem>();
     std::vector<uid> containerIDs;
-    UI::UISystem::AddChildrenContainersTo(UI::UISystem::GetRootContainer().ID, 2, containerIDs, UI::UISplitDirection::Vertical);
+    UI::UISystem::CreateChildrenContainersIn(UI::UISystem::GetRootContainer().ID, 2, containerIDs, UI::UISplitDirection::Vertical);
     int containerIDLeft = containerIDs[0];
     int containerIDRight = containerIDs[1];
     // uiSystem.GetContainerFromID(containerIDRight).drawBorder = false;
 
-    levelPlay = std::make_unique<LevelPlay::LevelPlay>();
-    UI::UIContainer& container = UI::UISystem::GetContainerFromID(containerIDRight);
-    Vector2 padding = {10.0f, 10.0f};
-    levelPlay->Init(container.position + padding, container.size - padding * 2);
+    StartLevelPlayIn(containerIDRight);
+
+
+
 }
 
 void Gasp::FrameUpdate() {
-    LevelPlay::LevelPlay::FrameUpdate();
+    HandleInput();
+    if (levelPlay->isAlive) {
+        levelPlay->HandleInput();
+        levelPlay->FrameUpdate();
+    }
 }
 
-void Gasp::DrawObjects() {
+void Gasp::Draw() {
     LevelPlay::LevelPlay::DrawAll();
-    UI::UISystem::DrawAll();
+    UI::UISystem::Draw();
+}
+
+void Gasp::HandleInput() {
+}
+
+void Gasp::StartLevelPlayIn(uid containerID) {
+    levelPlay = std::make_unique<LevelPlay::LevelPlay>();
+    UI::UIContainer& container = UI::UISystem::GetContainerFromID(containerID);
+    Vector2 padding = {10.0f, 10.0f};
+    levelPlay->Init(container.position + padding, container.size - padding * 2);
 }

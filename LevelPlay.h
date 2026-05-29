@@ -90,10 +90,14 @@ namespace LevelPlay {
 
 
     public:
+        bool isAlive = true;
+
         LevelPlay();
 
         static void Init(const Vector2& position, const Vector2& size);
-        static void SetPositionAndSize(Vector2 position, Vector2 size);
+        static void HandleInput();
+        static GameObject& GetGameObject(uid id);
+        static void SetContainerPositionAndSize(Vector2 position, Vector2 size);
         static void AddWave(const EnemyData &enemyData, float delayBeforeFirst, float delayBetween, int enemyCount);
         static void HandleEnemySpawns();
         static Vector2 GetRandomEnemyStartPosition(float enemySize);

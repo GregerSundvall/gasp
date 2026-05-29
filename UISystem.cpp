@@ -15,29 +15,37 @@ namespace UI {
         uiContainers.back().size = {screenWidth - windowMargin * 2, screenHeight - windowMargin * 2};
     }
 
-    int UISystem::AddChildContainerTo(const uid parentID) {
+    uid UISystem::CreateChildContainerIn(const uid parentID, bool overlay) {
         uiContainers.emplace_back();
         UIContainer& child = uiContainers.back();
         child.parentID = parentID;
         UIContainer& parent = GetContainerFromID(parentID);
         parent.childrenIDs.push_back(child.ID);
 
-        child.position.x = parent.position.x + parent.padding;
-        child.position.y = parent.position.y + parent.padding;
-        Vector2 size = GetAvailableSpaceIn(parentID);
-        child.size.x = size.x;
-        child.size.y = size.y;
+        Vector2 maxSize = GetAvailableSpaceIn(parentID);
+        if (overlay) {
+            child.isOverlay = true;
+            child.size.x = maxSize.x * 0.7f;
+            child.size.y = maxSize.y * 0.7f;
+            child.position.x = parent.position.x + parent.padding + (maxSize.x - child.size.x) / 2;
+            child.position.y = parent.position.y + parent.padding + (maxSize.y - child.size.y) / 2;
+        } else { // Implicitly NOT overlay
+            child.size.x = maxSize.x;
+            child.size.y = maxSize.y;
+            child.position.x = parent.position.x + parent.padding;
+            child.position.y = parent.position.y + parent.padding;
+        }
         return child.ID;
     }
 
-    void UISystem::AddChildrenContainersTo(const uid parentID, int numChildren, std::vector<uid>& childrenIDs, UISplitDirection splitDirection) {
+    void UISystem::CreateChildrenContainersIn(const uid parentID, int numChildren, std::vector<uid>& childrenIDs, UISplitDirection splitDirection) {
         childrenIDs.clear();
         childrenIDs.reserve(numChildren);
         UIContainer& parent = GetContainerFromID(parentID);
         parent.childrenIDs.clear();
 
         for (int i = 0; i < numChildren; ++i) {
-            childrenIDs.push_back(AddChildContainerTo(parentID));
+            childrenIDs.push_back(CreateChildContainerIn(parentID));
             parent.childrenIDs.push_back(childrenIDs.back());
         }
 
@@ -73,6 +81,10 @@ namespace UI {
             }
         }
     }
+
+    // void UISystem::CreateOverlayContainerIn(uid parentID) {
+    //
+    // }
 
     UIContainer& UISystem::GetRootContainer() {
         return uiContainers.front();
@@ -118,11 +130,18 @@ namespace UI {
         DrawLineEx(downLeft + cornerCutWidth, downRight, thickness, uiColor);
     }
 
-    void UISystem::DrawAll() {
+    void UISystem::Draw() {
+        uid overlayContainerID = -1;
         for (const UIContainer& container : uiContainers) {
-            if  (container.drawBorder) {
+            if (container.isOverlay) {
+                overlayContainerID = container.ID;
+            } else if (container.drawBorder) {
                 DrawCornerCutBorder(container.ID);
             }
+        }
+        if (overlayContainerID != -1) {
+            UIContainer& container = GetContainerFromID(overlayContainerID);
+            DrawRectangleV(container.position, container.size, uiColor);
         }
     }
 

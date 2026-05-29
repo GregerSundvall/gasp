@@ -18,9 +18,10 @@ namespace UI {
         float borderThickness = 3;
         float padding = 10;
         uid ID = Utils::UIDGenerator::GetNewUID();
-        int parentID = -1;
-        std::vector<int> childrenIDs;
+        uid parentID = -1;
+        std::vector<uid> childrenIDs;
         bool drawBorder = true;
+        bool isOverlay = false;
     };
 
 
@@ -31,20 +32,14 @@ namespace UI {
     public:
         UISystem();
 
-        static uid AddChildContainerTo(uid parentID);
-
-        static void AddChildrenContainersTo(uid parentID, int numChildren, std::vector<uid>& childrenIDs, UISplitDirection splitDirection);
-
+        static uid CreateChildContainerIn(uid parentID, bool overlay = false);
+        static void CreateChildrenContainersIn(uid parentID, int numChildren, std::vector<uid>& childrenIDs, UISplitDirection splitDirection);
+        // static void CreateOverlayContainerIn(uid parentID);
         static UIContainer &GetRootContainer();
-
         static Vector2 GetAvailableSpaceIn(uid containerID);
-
         static void DrawNeonBorder(uid containerID);
-
         static void DrawCornerCutBorder(uid containerID);
-
-        static void DrawAll();
-
+        static void Draw();
         static UIContainer& GetContainerFromID(uid containerID);
     };
 }
